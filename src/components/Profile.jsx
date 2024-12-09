@@ -18,13 +18,13 @@ function Profile() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">My Blogs</h1>
+    <div className="p-4 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">My Blogs</h1>
       <div className="grid gap-4">
         {blogs.map((blog) => (
-          <div key={blog.id} className="bg-white shadow-md rounded p-4">
+          <div key={blog.id} className="bg-gray-800 shadow-md rounded p-4">
             <h2 className="text-xl font-bold">{blog.title}</h2>
-            <p className="text-gray-700">{blog.message}</p>
+            <p className="text-gray-300 truncate">{blog.message}</p>
           </div>
         ))}
       </div>
