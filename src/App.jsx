@@ -12,7 +12,7 @@ function App() {
 
   return (
     <Router>
-      <div className="bg-gray-100 min-h-screen">
+      <div className="bg-gray-900 min-h-screen">
         {user && <Navbar />}
         <Routes>
           <Route path="/" element={user ? <Navigate to="/blogs" /> : <Auth />} />
@@ -20,7 +20,7 @@ function App() {
           <Route path="/blog/:id" element={user ? <BlogDetails /> : <Navigate to="/" />} />
           <Route path="/create" element={user ? <CreateBlog /> : <Navigate to="/" />} />
           <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" />} />
-          <Route path="*" element={<div className="text-center text-gray-700 text-xl mt-20">404: Page Not Found</div>} />
+          <Route path="*" element={<div className="text-center text-gray-300 text-xl mt-20">404: Page Not Found</div>} />
         </Routes>
       </div>
     </Router>
