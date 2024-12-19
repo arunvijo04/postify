@@ -1,15 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; 
 
-function Navbar() {
-  const user = JSON.parse(localStorage.getItem('user'));
+const Navbar = ({user})=> {
   const navigate = useNavigate();
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const dropdownRef = useRef(null); // Reference to the dropdown menu
+  const dropdownRef = useRef(null); 
+  const location = useLocation();// Reference to the dropdown menu
 
-  const handleLogout = () => {
-    localStorage.removeItem('user'); // Remove user info from localStorage
-    navigate('/'); // Redirect to the landing page
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the user
+      navigate("/"); // Redirect to login page
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   const toggleDropdown = (e) => {
@@ -32,24 +38,53 @@ function Navbar() {
     };
   }, []);
 
+  const isAdminPage = location.pathname === "/register"; 
+
   return (
     <nav className="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
       <div className="text-2xl font-semibold">
-        <Link to="/" className="hover:text-gray-400">
+        <Link to="/blogs" className="hover:text-gray-400">
           Postify
         </Link>
       </div>
 
       {/* User Profile Section */}
-      <div className="relative flex items-center">
-        {user && (
-          <div className="flex items-center cursor-pointer" onClick={toggleDropdown}>
+      <div className="flex items-center space-x-4 md:space-x-6">
+      {!user ? (
+          <>
+            <Link
+              to="/"
+              className="text-base md:text-lg text-blue-600 hover:text-blue-800 font-semibold transition duration-300"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="text-base md:text-lg text-blue-600 hover:text-blue-800 font-semibold transition duration-300"
+            >
+              Register
+            </Link>
+          </>
+        ) : isAdminPage ? (
+          <button
+            onClick={handleLogout}
+            className="text-base md:text-lg text-red-600 hover:text-blue-800 font-semibold transition duration-300"
+          >
+            Logout
+          </button>
+        ) : (
+          <div className="flex items-center space-x-4">
             <img
-              src={user.photoURL}
-              alt="User Avatar"
-              className="w-8 h-8 rounded-full mr-2"
+              src={user.photoURL} // Display user's profile image
+              alt="User Profile"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover"
             />
-            <span className="mr-4">{user.displayName}</span>
+            <span
+              onClick={toggleDropdown} // Trigger navigation to Profile page
+              className="text-base md:text-lg font-semibold text-blue-600 cursor-pointer hover:text-blue-800"
+            >
+              {user.displayName || user.email}
+            </span>
           </div>
         )}
 

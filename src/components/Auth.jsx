@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, provider } from '../firebase';
+import { auth, googleProvider } from "../firebase";
 import { useNavigate } from 'react-router-dom';
-import { getDocs, query, collection, where } from 'firebase/firestore';
-import { db } from '../firebase';  // Assuming Firestore is initialized in firebase.js
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"; // Assuming Firestore is initialized in firebase.js
 import { FaGoogle } from 'react-icons/fa';  // Google icon from react-icons
 import { AiOutlineMail } from 'react-icons/ai';  // Email icon from react-icons
 import bgImage from '../assets/bg.jpg'; // Background image
@@ -15,6 +13,7 @@ function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const messages = [
     'Welcome to Our Blog Platform',
     'Create Your First Blog',
@@ -40,44 +39,23 @@ function Auth() {
 
   const signInWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const { displayName, photoURL, email } = result.user;
-
-      // Store user details in localStorage
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ displayName, photoURL, email })
-      );
-
-      navigate('/blogs');
+      await signInWithPopup(auth, googleProvider);
+      navigate("/blogs");
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      setError("Failed to sign in with Google.");
     }
   };
 
   const signInWithEmail = async () => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', email));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        setError('No user found with this email.');
-      } else {
-        const user = querySnapshot.docs[0].data();
-
-        // Perform email/password authentication (this example assumes no password check)
-        // Add password verification here if applicable
-        localStorage.setItem(
-          'user',
-          JSON.stringify({ displayName: user.displayName, email: user.email })
-        );
-
-        navigate('/blogs');
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/events");
     } catch (error) {
-      console.error('Error signing in with email:', error);
-      setError('An error occurred while signing in.');
+      setError("Invalid email or password.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,6 +105,12 @@ function Auth() {
               <FaGoogle className="w-6 h-6 mr-3" />
               Sign in with Google
             </button>
+            <p className="mb-8 text-lg font-light">
+            Don't have an account?{" "}
+          <a href="/register" className="text-blue-500 hover:underline">
+            Sign up here
+          </a>
+        </p>
           </div>
         </div>
       </div>
